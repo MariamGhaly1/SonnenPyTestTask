@@ -15,7 +15,7 @@ class Inverter:
     def battery_current(self)-> float:
         try: 
             return float(self.active_power / self.battery_voltage)             # Amps  // assuming no power loss
-        except:
+        except (ZeroDivisionError):
             print("batterie voltage is 0!!")
 
 

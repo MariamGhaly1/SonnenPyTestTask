@@ -10,7 +10,7 @@ class Meter:
     def current(self) -> float:
             try: 
                 return float(self.power / self.voltage)             # Amps
-            except:
+            except(ZeroDivisionError):
                 print("calculating current while voltage is 0!!")
 
     def get(self, param: str):

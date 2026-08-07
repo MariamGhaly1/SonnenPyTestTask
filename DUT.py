@@ -13,6 +13,10 @@ Mock implementation of the sonnenBatterie DUT.
     grid.power (+import/-export).
     - On surplus/deficit bigger than the battery can absorb/supply, the grid
     takes up the remainder.
+    - If the power command is used, then the inverter output will always follow the power command regardless of the measurements,
+      and the grid power will be calculated respectively
+    - Getting the BMS reading from the DUT always return the values for a single BMS
+    - Getting the battery reading from the Inverter always returns the total of all modules.
 """
 
 

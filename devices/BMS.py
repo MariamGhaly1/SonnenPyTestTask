@@ -15,7 +15,7 @@ class BMS:
     def active_current(self)-> float:
         try: 
             return float(self.active_power / self.voltage)             # Amps
-        except:
+        except(ZeroDivisionError):
             print("batterie voltage is 0!!")
 
     def get(self, param: str):
