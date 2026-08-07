@@ -1,11 +1,11 @@
 import pytest
 
-from DUTmock import DUT
-from devices.PVmock import PV
-from devices.Consumptionmock import Consumption
-from devices.StorageSysmock import StorageSystem
-from devices.Invertermock import Inverter
-from devices.BMSmock import BMS
+from DUT import DUT
+from devices.Meter import PV_Meter 
+from devices.Meter import Consumption_Meter
+from devices.StorageSys import StorageSystem
+from devices.Inverter import Inverter
+from devices.BMS import BMS
 
 
 @pytest.fixture
@@ -15,8 +15,8 @@ def make_dut():
     def create(modules_num):
         nonlocal dut
 
-        pv_meter = PV()
-        consumption_meter = Consumption()
+        pv_meter = PV_Meter()
+        consumption_meter = Consumption_Meter()
         inverter = Inverter()
         bms = BMS()
         storage_system = StorageSystem(inverter, bms, modules_num)
@@ -29,21 +29,6 @@ def make_dut():
     if dut is not None:
         dut.reset()
     
-
-
-        
-# def dut() -> DUT:
-
-#     pv_meter = PV()
-#     consumption_meter = Consumption()
-#     inverter = Inverter()
-#     bms = BMS()
-#     storage_system = StorageSystem(inverter, bms, number_of_modules)
-
-#     device = DUT(pv_meter,consumption_meter, storage_system)
-#     yield device
-#     device.reset()
-
 
 def _get_float(dut: DUT, key: str) -> float:
     return float(dut.get(key))

@@ -7,18 +7,18 @@ doc, and rejects anything it shouldn't know about.
  
 import pytest
  
-from devices.PVmock import PV
-from devices.Consumptionmock import Consumption
-from devices.StorageSysmock import StorageSystem
-from devices.Invertermock import Inverter
-from devices.BMSmock import BMS
+from devices.Meter import PV_Meter 
+from devices.Meter import Consumption_Meter
+from devices.StorageSys import StorageSystem
+from devices.Inverter import Inverter
+from devices.BMS import BMS
  
 # ---------------------------------------------------------------------------
 # Production / Consumption meters
 # ---------------------------------------------------------------------------
  
 def test_production_meter_defaults():
-    meter = PV()
+    meter = PV_Meter()
     assert meter.get("power") == 0.0
     assert meter.get("voltage") == 220.0
     assert meter.get("current") == 0.0
@@ -26,19 +26,19 @@ def test_production_meter_defaults():
  
  
 def test_production_meter_set_and_get_power():
-    meter = PV()
+    meter = PV_Meter()
     assert meter.set("power", 4200) is True
     assert meter.get("power") == 4200
  
  
 def test_production_meter_rejects_unknown_param():
-    meter = PV()
+    meter = PV_Meter()
     with pytest.raises(KeyError):
         meter.set("bogus", 1)
  
  
 def test_consumption_meter_defaults():
-    meter = Consumption()
+    meter = Consumption_Meter()
     assert meter.get("power") == 0.0
     assert meter.get("voltage") == 220.0
     assert meter.get("frequency") == 50.0

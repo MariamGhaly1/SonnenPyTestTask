@@ -1,6 +1,6 @@
 import pytest
 
-from DUTmock import DUT
+from DUT import DUT
 
 
 @pytest.fixture(autouse=True)

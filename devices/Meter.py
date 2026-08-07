@@ -1,5 +1,5 @@
-class Consumption:
-    """Household consumption meter readings."""
+class Meter:
+    """"General class for meters"""
 
     def __init__(self):
         self.power = 0.0                        # Watts
@@ -8,10 +8,10 @@ class Consumption:
 
     @property
     def current(self) -> float:
-        try: 
-            return float(self.power / self.voltage)             # Amps
-        except:
-            print("consumption voltage is 0!!")
+            try: 
+                return float(self.power / self.voltage)             # Amps
+            except:
+                print("calculating current while voltage is 0!!")
 
     def get(self, param: str):
         if not hasattr(self, param):
@@ -24,3 +24,17 @@ class Consumption:
         setattr(self, param, value)
         return True
 
+
+class Consumption_Meter(Meter):
+    """Household consumption meter readings."""
+
+    def __init__(self):
+       super().__init__()
+
+
+
+class PV_Meter(Meter):
+    """PV panel readings."""
+
+    def __init__(self):
+           super().__init__()

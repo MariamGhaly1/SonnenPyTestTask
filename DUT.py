@@ -1,6 +1,6 @@
-from devices.PVmock import PV
-from devices.Consumptionmock import Consumption
-from devices.StorageSysmock import StorageSystem
+from devices.Meter import PV_Meter 
+from devices.Meter import Consumption_Meter
+from devices.StorageSys import StorageSystem
 
 
 """
@@ -15,18 +15,6 @@ Mock implementation of the sonnenBatterie DUT.
     takes up the remainder.
 """
 
-# assumptions for the mock DUT
-
-MODULE_POWER_W = 2000
-    
-CONFIG_MAX_MODULES = {
-    "basic": 2,
-    "standard": 3,
-    "pro": 5,
-}
-
-DEFAULT_MODULES = 1
-
 
 class DUT ():
     """
@@ -35,19 +23,27 @@ class DUT ():
     """
 
 
-    def __init__(self, pv: PV, consumption: Consumption, storage_system: StorageSystem ):
+    def __init__(self, pv_meter: PV_Meter, consumption: Consumption_Meter, storage_system: StorageSystem ):
  
-        self.pv = pv
-        self.consumption = consumption
+        self.pv_meter = pv_meter
+        self.consumption_meter = consumption
         self.storage = storage_system
 
-        self.storage.on_measurement_change(self.pv.power, self.consumption.power)
+        self.storage.on_measurement_change(self.pv_meter.power, self.consumption_meter.power)
         self._grid_power = self.storage.grid_power
 
     @property
     def system_setup(self)-> str:
-        print(f"this is the setup name")
-        pass
+        match self.storage.num_modules:
+            case 1 | 2:
+                return "basic"
+            case 3:
+                return "standard"
+            case 4 |5 :
+                return "pro"
+            case _:
+                return None
+        
 
 
     #----------------------------------------------------------------
@@ -80,8 +76,16 @@ class DUT ():
 
     def set(self, key: str, value) -> bool:
         component, _, param = key.partition(".")
- 
-        target = self._component(component)
+        if component == "storage" and param == "power_command":
+            self.storage.power_command = float(value)
+            self.storage.on_power_command_calc_grid_power(
+                self.pv_meter.power,
+                self.consumption_meter.power,
+                self.storage.power_command,
+            )
+            return True
+        else:
+            target = self._component(component)
         if target is None:
             return False
         else:
@@ -92,15 +96,30 @@ class DUT ():
                 return False
             
             if ok and component in ("pv", "consumption"):
-                self.storage.on_measurement_change(self.pv.power, self.consumption.power)
+                self.storage.on_measurement_change(self.pv_meter.power, self.consumption_meter.power)
                 return True    
               
 
     def reset(self) -> None:
         """Restore the DUT to its initial state. Called after each test."""
-        self.pv.power = 0.0
-        self.consumption.power = 0.0 
-        self.storage.on_measurement_change(self.pv.power, self.consumption.power)
+        self.pv_meter.power = 0.0
+        self.pv_meter.voltage = 0.0
+        self.pv_meter.frequency = 0.0
+        self.consumption_meter.power = 0.0 
+        self.consumption_meter.voltage = 0.0
+        self.consumption_meter.frequency = 0.0
+
+        self.storage.inverter.active_power = 0.0
+        self.storage.inverter.battery_voltage = 0.0
+        self.storage.inverter.grid_frequency = 0.0
+        self.storage.inverter.grid_voltage = 0.0
+
+        self.storage.bms.active_power = 0.0
+        self.storage.bms.voltage = 0.0
+
+        self.storage.power_command = 0.0
+        self.storage.grid_power = 0.0
+        self.storage.on_measurement_change(self.pv_meter.power, self.consumption_meter.power)
 
         
 
@@ -109,11 +128,10 @@ class DUT ():
 
     def _component(self, name: str):
         return {
-            "pv": self.pv,
-            "consumption": self.consumption,
+            "pv": self.pv_meter,
+            "consumption": self.consumption_meter,
             "inverter": self.storage.inverter,
             "bms": self.storage.bms,
-            "storage": self.storage,
         }.get(name)
 
 

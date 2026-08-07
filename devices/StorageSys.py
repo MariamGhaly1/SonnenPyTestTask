@@ -1,5 +1,5 @@
-from devices.Invertermock import Inverter
-from devices.BMSmock import BMS
+from devices.Inverter import Inverter
+from devices.BMS import BMS
 
 
 class StorageSystem:
@@ -7,7 +7,9 @@ class StorageSystem:
         self.inverter = inverter
         self.bms = bms
         self.num_modules = num_modules
+        self.power_command = 0.0 
         self.grid_power = 0.0             # grid power is calculated not measured
+
 
     # @property
     # def max_storage_power_command(self):
@@ -25,6 +27,31 @@ class StorageSystem:
     #         self.storage_power_command = float(value)
     #         return True
     #     return False
+
+
+
+    
+
+    def on_power_command_calc_grid_power(self, pv_power, consumption_power, power_command):
+
+        
+        surplus = pv_power - consumption_power
+    
+        if surplus > 0:
+
+            self.grid_power = - (surplus + power_command)
+            
+        elif surplus < 0:
+            deficit = - surplus
+
+
+            self.grid_power = deficit - power_command 
+            
+        else:
+            self.grid_power = - power_command
+
+
+
 
 
 
