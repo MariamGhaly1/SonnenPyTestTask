@@ -5,9 +5,9 @@ class BMS:
 
     def __init__(self,  max_power: float = 2000 ):
          
-        self.temp =  25.0                             # Celsius
-        self.voltage = 48.0                           # Volts
-        self.soc = 60.0                               # percentage
+        self.temp =  0.0                             # Celsius
+        self.voltage = 0.0                           # Volts
+        self.soc = 0.0                               # percentage
         self.max_power = max_power
         self.active_power = 0.0
 

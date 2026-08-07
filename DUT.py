@@ -1,6 +1,6 @@
 from devices.Meter import PV_Meter 
 from devices.Meter import Consumption_Meter
-from devices.StorageSys import StorageSystem
+from devices.Storage_Sys import Storage_System
 
 
 """
@@ -9,7 +9,7 @@ Mock implementation of the sonnenBatterie DUT.
     Design assumptions:
     - Each battery module supports up to 2000W charge/discharge power.
     - System configs cap module count: Basic <= 2, Standard <= 3, Pro <= 5.
-    - Sign conventions: inverter.power_flow (+discharge/-charge),
+    - Sign conventions: inverter.active_power (+discharge/-charge),
     grid.power (+import/-export).
     - On surplus/deficit bigger than the battery can absorb/supply, the grid
     takes up the remainder.
@@ -23,7 +23,7 @@ class DUT ():
     """
 
 
-    def __init__(self, pv_meter: PV_Meter, consumption: Consumption_Meter, storage_system: StorageSystem ):
+    def __init__(self, pv_meter: PV_Meter, consumption: Consumption_Meter, storage_system: Storage_System ):
  
         self.pv_meter = pv_meter
         self.consumption_meter = consumption

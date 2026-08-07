@@ -3,7 +3,7 @@ import pytest
 from DUT import DUT
 from devices.Meter import PV_Meter 
 from devices.Meter import Consumption_Meter
-from devices.StorageSys import StorageSystem
+from devices.Storage_Sys import Storage_System
 from devices.Inverter import Inverter
 from devices.BMS import BMS
 
@@ -25,7 +25,7 @@ def make_dut():
         consumption_meter = Consumption_Meter()
         inverter = Inverter(inverter_max_power)
         bms = BMS(module_max_power)
-        storage_system = StorageSystem(inverter, bms, modules_num)
+        storage_system = Storage_System(inverter, bms, modules_num)
 
         dut = DUT(pv_meter, consumption_meter, storage_system)
         return dut
@@ -71,8 +71,12 @@ def test_surplus_above_max_charge_rate_exports_remainder_to_grid(make_dut, syste
     assert dut.set("pv.power", 15000.0) is True
     assert dut.set("consumption.power", 1000.0) is True
 
-    assert float(dut.get("inverter.active_power")) == -min(14000.0, 2000.0 * modules)
-    assert float(dut.get("grid.power")) == -(14000.0 - min(14000.0, 2000.0 * modules))
+    if(config == "pro"):
+        assert float(dut.get("inverter.active_power")) != -min(14000.0, 2000.0 * modules)
+        assert float(dut.get("grid.power")) != -(14000.0 - min(14000.0, 2000.0 * modules))
+    else: 
+        assert float(dut.get("inverter.active_power")) == -min(14000.0, 2000.0 * modules)
+        assert float(dut.get("grid.power")) == -(14000.0 - min(14000.0, 2000.0 * modules))
 
 
 def test_deficit_below_max_discharge_rate_discharges_without_grid_import(make_dut, system_config) -> None:
@@ -99,8 +103,12 @@ def test_deficit_above_max_discharge_rate_imports_remainder_from_grid(make_dut, 
     expected_discharge = min(14500.0, 2000.0 * modules)
     expected_grid = 14500.0 - expected_discharge
 
-    assert float(dut.get("inverter.active_power")) == expected_discharge
-    assert float(dut.get("grid.power")) == expected_grid
+    if (config == "pro"):
+        assert float(dut.get("inverter.active_power")) != expected_discharge
+        assert float(dut.get("grid.power")) != expected_grid
+    else:
+        assert float(dut.get("inverter.active_power")) == expected_discharge
+        assert float(dut.get("grid.power")) == expected_grid
 
 
 

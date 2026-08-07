@@ -3,8 +3,8 @@ class Meter:
 
     def __init__(self):
         self.power = 0.0                        # Watts
-        self.voltage = 220.0                    # Volts
-        self.frequency = 50.0                   # Hertz
+        self.voltage = 0.0                    # Volts
+        self.frequency = 0.0                   # Hertz
 
     @property
     def current(self) -> float:

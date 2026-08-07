@@ -2,39 +2,17 @@ from devices.Inverter import Inverter
 from devices.BMS import BMS
 
 
-class StorageSystem:
+class Storage_System:
     def __init__(self, inverter: Inverter, bms: BMS, num_modules: int = 1 ):
         self.inverter = inverter
         self.bms = bms
         self.num_modules = num_modules
         self.power_command = 0.0 
         self.grid_power = 0.0             # grid power is calculated not measured
-
-
-    # @property
-    # def max_storage_power_command(self):
-    #     return min(
-    #         self.inverter.max_power, self.bms.max_power
-    #     )  # Watts  (+ = discharge, - = charge)
-
-    # def get(self, param: str):
-    #     if param == "max_storage_power_command":
-    #         return self.storage_power_command
-    #     raise KeyError(param)
-
-    # def set(self, param: str, value) -> bool:
-    #     if param == "storage_power_command":
-    #         self.storage_power_command = float(value)
-    #         return True
-    #     return False
-
-
-
     
 
     def on_power_command_calc_grid_power(self, pv_power, consumption_power, power_command):
 
-        
         surplus = pv_power - consumption_power
     
         if surplus > 0:
