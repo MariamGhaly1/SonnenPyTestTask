@@ -1,0 +1,80 @@
+import pytest
+
+from DUTmock import DUT
+
+
+@pytest.fixture(autouse=True)
+def dut() -> DUT:
+    device = DUT()
+    yield device
+    device.reset()
+
+
+def _get_float(dut: DUT, key: str) -> float:
+    return float(dut.get(key))
+
+
+def test_dut_defaults_to_basic_config(dut: DUT) -> None:
+    assert dut.get("system.config") == "basic"
+    assert dut.get("system.modules") == "1"
+    assert _get_float(dut, "grid.power") == 0.0
+    assert _get_float(dut, "inverter.power_flow") == 0.0
+
+
+def test_dut_charges_battery_from_surplus_without_grid_import(dut: DUT) -> None:
+    assert dut.set("pv.power", 3000.0) is True
+    assert dut.set("consumption.power", 1000.0) is True
+
+    assert _get_float(dut, "inverter.power_flow") == -2000.0
+    assert _get_float(dut, "grid.power") == 0.0
+
+
+def test_dut_exports_surplus_to_grid_when_battery_is_full(dut: DUT) -> None:
+    assert dut.set("pv.power", 5000.0) is True
+    assert dut.set("consumption.power", 1000.0) is True
+
+    assert _get_float(dut, "inverter.power_flow") == -2000.0
+    assert _get_float(dut, "grid.power") == -2000.0
+
+
+def test_dut_discharges_battery_to_cover_deficit_without_grid_import(dut: DUT) -> None:
+    assert dut.set("pv.power", 1000.0) is True
+    assert dut.set("consumption.power", 3000.0) is True
+
+    assert _get_float(dut, "inverter.power_flow") == 2000.0
+    assert _get_float(dut, "grid.power") == 0.0
+
+
+def test_dut_imports_grid_power_when_deficit_exceeds_battery_capacity(dut: DUT) -> None:
+    assert dut.set("pv.power", 500.0) is True
+    assert dut.set("consumption.power", 3000.0) is True
+
+    assert _get_float(dut, "inverter.power_flow") == 2000.0
+    assert _get_float(dut, "grid.power") == 500.0
+
+
+def test_dut_updates_module_count_when_config_changes(dut: DUT) -> None:
+    assert dut.set("system.config", "standard") is True
+    assert dut.get("system.config") == "standard"
+    assert dut.get("system.modules") == "3"
+
+
+def test_dut_rejects_invalid_config_and_grid_writes(dut: DUT) -> None:
+    assert dut.set("system.config", "enterprise") is False
+    assert dut.get("system.modules") == "1"
+
+    assert dut.set("grid.power", 42.0) is False
+    assert _get_float(dut, "grid.power") == 0.0
+
+
+def test_dut_reset_restores_initial_state(dut: DUT) -> None:
+    dut.set("pv.power", 2500.0)
+    dut.set("consumption.power", 1000.0)
+    dut.set("system.config", "standard")
+
+    dut.reset()
+
+    assert dut.get("system.config") == "basic"
+    assert dut.get("system.modules") == "1"
+    assert _get_float(dut, "grid.power") == 0.0
+    assert _get_float(dut, "inverter.power_flow") == 0.0
