@@ -20,6 +20,19 @@ The DUT uses the following design assumptions:
 - Inverter sign convention: `inverter.power_flow` is positive for discharge and negative for charge.
 - Grid sign convention: `grid.power` is positive for import and negative for export.
 
+## Design assumptions
+
+- Each battery module supports up to 2000W charge/discharge power.
+- System configs cap module count: Basic <= 2, Standard <= 3, Pro <= 5.
+- Sign conventions: inverter.active_power (+discharge/-charge),
+grid.power (+import/-export).
+- On surplus/deficit bigger than the battery can absorb/supply, the grid
+takes up the remainder.
+- If the power command is used, then the inverter output will always follow the power command regardless of the measurements,
+    and the grid power will be calculated respectively
+- Getting the BMS reading from the DUT always return the values for a single BMS
+- Getting the battery reading from the Inverter always returns the total of all modules.
+
 ## Repository Structure
 
 - `DUT.py`: DUT wrapper exposing `get`, `set`, and `reset` methods.

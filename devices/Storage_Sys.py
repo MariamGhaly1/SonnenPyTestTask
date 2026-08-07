@@ -12,21 +12,8 @@ class Storage_System:
     
 
     def on_power_command_calc_grid_power(self, pv_power, consumption_power, power_command):
-
-        surplus = pv_power - consumption_power
-    
-        if surplus > 0:
-
-            self.grid_power = - (surplus + power_command)
-            
-        elif surplus < 0:
-            deficit = - surplus
-
-
-            self.grid_power = deficit - power_command 
-            
-        else:
-            self.grid_power = - power_command
+        
+        self.grid_power = - (power_command +pv_power - consumption_power)
 
 
 
