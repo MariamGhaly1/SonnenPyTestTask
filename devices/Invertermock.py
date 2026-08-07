@@ -5,18 +5,21 @@ class Inverter:
     itself is managed by the DUT based on system config).
     """
 
-    def __init__(self, modules: int = 1, module_power_w: float = 2000):
-        self.modules = modules
-        self.module_power_w = module_power_w
+    def __init__(self, max_power: float = 9000.0):
+    
+        self.max_power = max_power
+        self.active_power = 0.0                                 # Watts  # -ve > charge batterie
         self.battery_voltage = 48.0                             # Volts
-        self.battery_current = 0.0                              # Amps
-        self.power_flow = 0.0                                    # Watts  # -ve > charge batterie
         self.grid_frequency = 50.0                               # Hertz
         self.grid_voltage = 220.0                                # Volts
 
     @property
-    def max_power(self) -> float:
-        return self.modules * self.module_power_w
+    def battery_current(self)-> float:
+        try: 
+            return float(self.active_power / self.battery_voltage)             # Amps  // assuming no power loss
+        except:
+            print("batterie voltage is 0!!")
+
 
     def get(self, param: str):
         if not hasattr(self, param):
@@ -28,8 +31,9 @@ class Inverter:
         if not hasattr(self, param):
             print(f"set: {param} not found")
             return False
-        if param == "max_power":
+        elif param == "active_power" or param =="battery_current":
             print(f"para: {param} is not editable")
             return False
-        setattr(self, param, value)
-        return True
+        else: 
+            setattr(self, param, value)
+            return True

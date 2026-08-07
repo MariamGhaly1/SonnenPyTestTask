@@ -3,19 +3,20 @@ class BMS:
     assumption: All batteries have the same specs"""
 
 
-    def __init__(self, num_modules: int = 1, module_power_w: float = 2000 ):
+    def __init__(self,  max_power: float = 2000 ):
          
         self.temp =  25.0                             # Celsius
         self.voltage = 48.0                           # Volts
-        self.current = 0.0                            # Amps
         self.soc = 60.0                               # percentage
-        self.num_modules = num_modules
-        self.module_power_w = module_power_w
-
+        self.max_power = max_power
+        self.active_power = 0.0
 
     @property
-    def max_power(self) -> float:
-        return self.module_power_w * self.num_modules
+    def active_current(self)-> float:
+        try: 
+            return float(self.active_power / self.voltage)             # Amps
+        except:
+            print("batterie voltage is 0!!")
 
     def get(self, param: str):
         if not hasattr(self, param):
@@ -24,13 +25,12 @@ class BMS:
         return getattr(self, param)
  
     def set(self, param: str, value) -> bool:
-        if param == "max_power" or param == "num_modules":
+        if param == "active_power" or param == "active_current":
             print(f"para: {param} is not editable")
             return False
         elif not hasattr(self, param):
             print(f"set: {param} not found")
             raise KeyError(param)
-        
-        
-        setattr(self, param, value)
-        return True
+        else:
+            setattr(self, param, value)
+            return True

@@ -4,8 +4,14 @@ class Consumption:
     def __init__(self):
         self.power = 0.0                        # Watts
         self.voltage = 220.0                    # Volts
-        self.current = 0.0                      # Amps
         self.frequency = 50.0                   # Hertz
+
+    @property
+    def current(self) -> float:
+        try: 
+            return float(self.power / self.voltage)             # Amps
+        except:
+            print("consumption voltage is 0!!")
 
     def get(self, param: str):
         if not hasattr(self, param):
